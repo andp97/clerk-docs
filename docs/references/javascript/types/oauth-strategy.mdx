@@ -17,6 +17,7 @@ type OAuthStrategy = |
 "oauth_twitter"|
 "oauth_twitch"|
 "oauth_linkedin"|
+"oauth_linkedin_oidc"|
 "oauth_dropbox"|
 "oauth_bitbucket"|
 "oauth_microsoft"|
@@ -64,6 +65,10 @@ type OAuthStrategy = |
         <>Specify Twitch as the verification OAuth provider.</>
     ]}, {cells: [
         <code>oauth_linkedin</code>,
+        <code>string</code>,
+        <>This strategy is now deprecated in favor of `oauth_linkedin_oidc`.</>
+    ]}, {cells: [
+        <code>oauth_linkedin_oidc</code>,
         <code>string</code>,
         <>Specify LinkedIn as the verification OAuth provider.</>
     ]}, {cells: [
