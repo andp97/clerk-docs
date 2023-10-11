@@ -5,7 +5,7 @@ description: Learn how to invite new users to an organization.
 
 # Invite users to an organization
 
-Organization administrators have the ability to invite new users to their organization and manage those invitations. When an administrator invites a new member, an invitation email is sent out. The invitation recipient can be either an existing user of your application or a new user. If the latter is true, the user will be registered once they accept the invitation.
+Organization administrators have the ability to invite new users to their organization and manage those invitations. When an administrator invites a new member, an invitation email is sent out. The invitation recipient can be either an existing user of your application or a new user. If the latter is true, the user will need to register in order to accept the invitation.
 
 In React and Next.js applications, the [`useOrganization()`](/docs/references/react/use-organization) hook returns the `organization` property, which is then used to call [`organization.inviteMember()`](/docs/references/javascript/organization/invitations#invite-member) passing in the recipient's email address and desired role (either `basic_member` or `admin`).
 
@@ -99,3 +99,14 @@ export default function InvitationList() {
   );
 }
 ```
+
+### Custom redirect url
+
+Using Clerk's BE SDK, when creating an organization invitation, you can specify a custom redirect URL. When users click on organization invitation link, they get redirected to that URL after the ticket has been verified. The URL will contain two important query parameters added by Clerk, `__clerk_ticket` and `__clerk_status`.
+
+The `__clerk_ticket` query parameter will hold the actual ticket token, which can be used during sign in and sign up flows in order to complete the organization invitation flow.
+
+The `__clerk_status` query parameter is the outcome of the ticket verification and can take three values:
+- `sign_in` which means that the user already exists in your application. You should create a ticket sign-in in order to complete the flow.
+- `sign_up` which means that the user doesn't already exist in your application. You should create a ticket sign-up in order to complete the flow.
+- `complete` which means that the user already exists and it was signed in. That means that the flow has been completed and no further actions are required.
