@@ -18,7 +18,7 @@ At a glance, the process for creating and using a template is the following:
 - Create a JWT template from the [Clerk Dashboard](https://dashboard.clerk.com/last-active?path=jwt-templates)
 - From your frontend, generate tokens using that template
 
-The following sections will dive into these steps and explore what you can achieve with JWT Templates. 
+The following sections will dive into these steps and explore what you can achieve with JWT Templates.
 
 ## Template basics
 
@@ -150,7 +150,7 @@ Future extensions to the template language may provide more ways to query for sp
 
 ### Interpolation
 
-Shortcodes can be interpolated inside strings. 
+Shortcodes can be interpolated inside strings.
 
 For example, you could use interpolation to build the user's full name:
 
@@ -160,7 +160,65 @@ For example, you could use interpolation to build the user's full name:
 }
 ```
 
-Interpolated shortcode substituted values will always be casted to strings. For example, if the user does not have a last name associated, the above full name value would be "null John".
+Interpolated shortcodes will always result to string values. For example, if the user does not have a last name associated, the above full name value would be "null John".
+
+### Coalescing
+
+Shortcode coalescing is a conditional expression of the form:
+
+```json
+"{{ <operand_1> || <operand_2> || <operand_n> }}"
+```
+
+For example, given the following template:
+
+```json
+{
+  "has_verified_contact_info": "{{user.has_verified_email || user.has_verified_phone}}",
+
+  // fallback to a string value
+  "full_name": "{{user.first_name || 'John'}} {{user.last_name || 'Doe' }}",
+
+  // fallback to a number value
+  "age": "{{user.public_metadata.age || user.unsafe_metadata.age || 30 }}"
+}
+```
+
+The output after substitution (subject to the actual user data) would look like this:
+
+```json
+{
+  "has_verified_contact_info": true,
+  "full_name": "Mary Doe",
+  "age": 30
+}
+```
+
+Coalescing is often used to substitute a default fallback value for shortcodes that would otherwise result in `null` or `false` values.
+
+In a coalescing expression, operands are separated by `||`. The result of a coalescing expression is the first operand that is not `null`/`false`. If all operands of the expression are `null`/`false`, the last operand is returned no matter its return value.
+
+Coalescing can be combined with interpolation:
+
+```json
+{
+  "title": "Awesome {{user.first_name || user.last_name || 'user'}}"
+}
+```
+
+Assuming a user that has no first or last name set in their profile, the above would output:
+
+```json
+{
+  "title": "Awesome user"
+}
+```
+
+The rules that sum up how coalescing works are:
+
+- string operands should use single quotes (`'`)
+- the result of a coalescing expression is either the first operand that is not `null`/`false`, or the last operand (no matter its value)
+- strings, booleans and numbers are allowed as fallback (i.e. non-shortcode) operands
 
 ## Creating a template
 
@@ -223,7 +281,7 @@ And given the following template (comments added here for clarity):
     "aud": "https://my-site.com",
     "version": 1,
     "foo": { "bar": [1,2,3] },
-    
+
     // dynamic values
     "user_id": "{{user.id}}",
     "avatar": "{{user.image_url}}",
@@ -257,7 +315,7 @@ Using the above template, generating a token for the aforementioned user would r
         }
      },
      "invalid_shortcode": "{{user.i_dont_exist}}",
-     
+
      // default claims, included automatically
     "iat": 1639398272,
     "nbf": 1639398220,
